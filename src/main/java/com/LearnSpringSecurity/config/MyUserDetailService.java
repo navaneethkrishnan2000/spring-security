@@ -19,6 +19,8 @@ public class MyUserDetailService implements UserDetailsService { // we are creat
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        //First, Find the user from db
+        // If the user is present then we will prepare the user details for the user, else throw an exception
         Optional<MyUser> user = myUserRepository.findByUsername(username);
         if(user.isPresent()){
             var userObj = user.get();
@@ -27,13 +29,14 @@ public class MyUserDetailService implements UserDetailsService { // we are creat
                    .password(userObj.getPassword())
                    .roles(getRoles(userObj))
                    .build();
-        }
-        else {
+        } else {
             throw new UsernameNotFoundException(username);
         }
     }
 
     private String[] getRoles(MyUser user) {
+        // If role is empty then return the role as Empty
+        // else
         if(user.getRole() == null) {
             return new String[]{"USER"};
         }
