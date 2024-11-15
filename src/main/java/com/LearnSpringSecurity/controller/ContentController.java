@@ -4,6 +4,7 @@ import com.LearnSpringSecurity.config.MyUserDetailService;
 import com.LearnSpringSecurity.model.LoginForm;
 import com.LearnSpringSecurity.webtoken.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,15 +44,27 @@ public class ContentController {
         return "custom_login";
     }
 
+    // When the user is logged in it will generate a token ( Authentication )
     @PostMapping("/authenticate")
-    public String authenticateAndGetToken(@RequestBody LoginForm loginForm) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginForm.username(), loginForm.password()
-        ));
+    public ResponseEntity<String> authenticateAndGetToken(@RequestBody LoginForm loginForm) {
+        // First we have to authenticate the username and password that we are receiving from the loginForm,
+        // for authentication we need Authentication Manager, we have to autowire it and create a bean of AuthenticationManager in the SecurityConfiguration class
+        // it will help us to authenticate the username and password, so we don't have to write the logic separately
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(
+                        loginForm.username(), loginForm.password())
+                );
+        // Validating the user the username and password are correct(Authenticated)
+        // if authenticated, return the token
+        // else throw exception
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(myUserDetailService.loadUserByUsername(loginForm.username()));
+            String token = jwtService.generateToken(myUserDetailService.loadUserByUsername(loginForm.username()));
+            return ResponseEntity.ok(token);
         } else {
             throw new UsernameNotFoundException("Invalid username or password");
         }
     }
+
+
+
 }

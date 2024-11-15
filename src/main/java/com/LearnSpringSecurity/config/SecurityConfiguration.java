@@ -1,5 +1,6 @@
 package com.LearnSpringSecurity.config;
 
+import com.LearnSpringSecurity.webtoken.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration //@Configuration is a class-level annotation indicating that an object is a source of bean definitions. @Configuration classes declare beans through @Bean -annotated methods. Calls to @Bean methods on @Configuration classes can also be used to define inter-bean dependencies.
 @EnableWebSecurity // Used to enable the security
@@ -21,6 +23,8 @@ public class SecurityConfiguration {
 
     @Autowired
     private MyUserDetailService myUserDetailService;
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     /*
     Security filter chain provides a default configuration to
@@ -46,6 +50,7 @@ public class SecurityConfiguration {
                             .successHandler(new AuthenticationSuccessHandler()) // to redirect to the home pages of the user and admin while signing in using user and admin credentials
                             .permitAll();
                 })
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // This code means,Call this jwtAuthenticationFilter before calling UsernamePasswordAuthenticationFilter.class
                 .build(); //
     }
 
